@@ -149,3 +149,8 @@ If Node-RED runs on your host PC, use:
     testpaths = tests
     pythonpath = .
     ```
+
+## Screenshots
+![Swagger UI](docs/images/swagger-ui.png)
+![Latest Response Example](docs/images/latest-response.png)
+![Node-Red MQTT -> HTTP Bridge](docs/images/node-red-flow.png)
