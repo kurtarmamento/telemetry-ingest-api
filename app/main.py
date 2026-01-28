@@ -9,7 +9,8 @@ from fastapi.responses import JSONResponse
 
 from .db import get_connection, init_db
 from .models import IngestRequest, IngestResponse, LatestResponse
-from .repo import fetch_latest, upsert_latest
+from .repo import fetch_latest, fetch_all_latest, upsert_latest
+
 
 
 def now_utc_iso() -> str:
@@ -80,6 +81,19 @@ def create_app(db_path: str | None = None) -> FastAPI:
             received_at=row["received_at"],
             metrics=row["metrics"],
         )
+
+    @app.get("/devices", response_model=list[LatestResponse])
+    def devices(conn=Depends(db_conn)) -> list[LatestResponse]:
+        rows = fetch_all_latest(conn=conn)
+        return [
+            LatestResponse(
+                device_id=r["device_id"],
+                timestamp=r["timestamp"],
+                received_at=r["received_at"],
+                metrics=r["metrics"],
+            )
+            for r in rows
+        ]
 
     @app.exception_handler(HTTPException)
     def http_exception_handler(_, exc: HTTPException):

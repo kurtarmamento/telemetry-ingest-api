@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 
 UPSERT_SQL = """
@@ -19,6 +19,13 @@ SELECT device_id, timestamp, metrics_json, received_at
 FROM latest_readings
 WHERE device_id = ?;
 """
+
+SELECT_ALL_SQL = """
+SELECT device_id, timestamp, metrics_json, received_at
+FROM latest_readings
+ORDER BY device_id ASC;
+"""
+
 
 
 def upsert_latest(
@@ -46,3 +53,21 @@ def fetch_latest(conn: sqlite3.Connection, device_id: str) -> Optional[Dict[str,
         "received_at": row["received_at"],
         "metrics": metrics,
     }
+
+
+def fetch_all_latest(conn: sqlite3.Connection) -> List[Dict[str, Any]]:
+    rows = conn.execute(SELECT_ALL_SQL).fetchall()
+    result: List[Dict[str, Any]] = []
+
+    for row in rows:
+        metrics = json.loads(row["metrics_json"])
+        metrics = {str(k): float(v) for k, v in metrics.items()}
+
+        result.append({
+            "device_id": row["device_id"],
+            "timestamp": row["timestamp"],
+            "received_at": row["received_at"],
+            "metrics": metrics,
+        })
+
+    return result
