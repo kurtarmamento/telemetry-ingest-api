@@ -33,3 +33,45 @@ def test_ingest_rejects_empty_metrics(tmp_path):
     with TestClient(app) as client:
         r = client.post("/ingest", json=payload)
         assert r.status_code == 422
+
+def test_ingest_rejects_humidity_out_of_range(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    app = create_app(db_path=db_path)
+
+    payload = {
+        "device_id": "room-sensor-01",
+        "metrics": {"humidity_pct": 150.0},
+    }
+
+    with TestClient(app) as client:
+        r = client.post("/ingest", json=payload)
+        assert r.status_code == 422
+
+
+def test_ingest_rejects_temp_out_of_range(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    app = create_app(db_path=db_path)
+
+    payload = {
+        "device_id": "room-sensor-01",
+        "metrics": {"temp_c": -999.0},
+    }
+
+    with TestClient(app) as client:
+        r = client.post("/ingest", json=payload)
+        assert r.status_code == 422
+
+
+def test_ingest_allows_unknown_metric_if_numeric(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    app = create_app(db_path=db_path)
+
+    payload = {
+        "device_id": "room-sensor-01",
+        "metrics": {"pressure_hpa": 1013.2},
+    }
+
+    with TestClient(app) as client:
+        r = client.post("/ingest", json=payload)
+        assert r.status_code == 200
+
