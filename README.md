@@ -128,6 +128,9 @@ tests/
 ```
 
 ## Node-RED integration (MQTT → HTTP)
+
+This API is designed to sit behind an MQTT pipeline.
+
 In Node-RED:
 - Subscribe to your MQTT topics (e.g., `sensors/#`)
 - Transform to the ingest payload shape
@@ -138,6 +141,12 @@ If Node-RED runs in Docker and this API runs on your host PC, the URL is typical
 
 If Node-RED runs on your host PC, use:
 - `http://127.0.0.1:8000/ingest`
+
+An example flow is available under:
+
+> .\examples\nodered\flow_mqtt_to_http.json
+
+Designed to be used with my DHT11_IoT_lua_esp8266 repo with docker.
 
 ## Troubleshooting
 - If you see import errors in tests, ensure:
